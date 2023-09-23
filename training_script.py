@@ -41,6 +41,10 @@ class ScriptArguments:
         default="billsum",
         metadata={"help": "The preference dataset to use."},
     )
+    packing: Optional[bool] = field(
+        default=False,
+        metadata={"help": "Use packing dataset creating."},
+    )
     use_4bit: Optional[bool] = field(
         default=True,
         metadata={"help": "Activate 4bit precision base model loading"},
