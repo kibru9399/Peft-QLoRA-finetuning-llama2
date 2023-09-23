@@ -101,45 +101,45 @@ class ScriptArguments:
         metadata={"help": "The output directory where the model predictions and checkpoints will be written."},
     )
 
-    parser = HfArgumentParser(ScriptArguments)
-    script_args = parser.parse_args_into_dataclasses()[0]
+parser = HfArgumentParser(ScriptArguments)
+script_args = parser.parse_args_into_dataclasses()[0]
 
 
-    def create_model(args):
-        compute_dtype = getattr(torch, args.bnb_4bit_compute_dtype)
+def create_model(args):
+    compute_dtype = getattr(torch, args.bnb_4bit_compute_dtype)
 
-        bnb_config = BitsAndBytesConfig(
-            load_in_4bit=args.use_4bit,
-            bnb_4bit_quant_type=args.bnb_4bit_quant_type,
-            bnb_4bit_compute_dtype=compute_dtype,
-            bnb_4bit_use_double_quant=args.use_nested_quant,
-        )
-        if compute_dtype == torch.float16 and args.use_4bit:
-            major, _ = torch.cuda.get_device_capability()
-            if major >= 8:
-                print("=" * 80)
-                print("Your GPU supports bfloat16, you can accelerate training with the argument --bf16")
-                print("=" * 80)
-        device_map = {"": 0}
-        model = AutoModelForCausalLM.from_pretrained(
-        args.model_name, 
-        quantization_config=bnb_config, 
-        device_map=device_map        
-        )
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=args.use_4bit,
+        bnb_4bit_quant_type=args.bnb_4bit_quant_type,
+        bnb_4bit_compute_dtype=compute_dtype,
+        bnb_4bit_use_double_quant=args.use_nested_quant,
+    )
+    if compute_dtype == torch.float16 and args.use_4bit:
+        major, _ = torch.cuda.get_device_capability()
+        if major >= 8:
+            print("=" * 80)
+            print("Your GPU supports bfloat16, you can accelerate training with the argument --bf16")
+            print("=" * 80)
+    device_map = {"": 0}
+    model = AutoModelForCausalLM.from_pretrained(
+    args.model_name, 
+    quantization_config=bnb_config, 
+    device_map=device_map        
+    )
 
-        peft_config = LoraConfig(
-        lora_alpha=script_args.lora_alpha,
-        lora_dropout=script_args.lora_dropout,
-        r=script_args.lora_r,
-        bias="none",
-        task_type="CAUSAL_LM", 
-        )
+    peft_config = LoraConfig(
+    lora_alpha=script_args.lora_alpha,
+    lora_dropout=script_args.lora_dropout,
+    r=script_args.lora_r,
+    bias="none",
+    task_type="CAUSAL_LM", 
+    )
 
-        tokenizer = AutoTokenizer.from_pretrained(script_args.model_name, trust_remote_code=True)
-        tokenizer.pad_token = tokenizer.eos_token
+    tokenizer = AutoTokenizer.from_pretrained(script_args.model_name, trust_remote_code=True)
+    tokenizer.pad_token = tokenizer.eos_token
 
-        return model, peft_config, tokenizer
-    
+    return model, peft_config, tokenizer
+
 old_init = transformers.models.llama.modeling_llama.LlamaRotaryEmbedding.__init__
 def ntk_scaled_init(self, dim, max_position_embeddings=2048, base=10000, device=None):
 
