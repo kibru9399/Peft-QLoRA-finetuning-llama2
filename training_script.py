@@ -39,7 +39,7 @@ class ScriptArguments:
     )
     dataset_name: Optional[str] = field(
         default="billsum",
-        metadata={"help": "The preference dataset to use."},
+        metadata={"help": "The preference datset to use."},
     )
     packing: Optional[bool] = field(
         default=False,
