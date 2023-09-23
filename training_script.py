@@ -173,7 +173,7 @@ training_arguments = TrainingArguments(
     lr_scheduler_type=script_args.lr_scheduler_type,
 )
 def merge_columns(example):
-  example['prediction'] = 'summarize the following text:\n' + example['text'] + '\nsummary->: \n' + str(example['title'])
+  example['prediction'] = 'summarize the following text:\n' + example['text'] + '\nsummary->: \n' + example['title']
   return example
 
 model, peft_config, tokenizer = create_model(script_args)
@@ -186,7 +186,7 @@ trainer = SFTTrainer(
     model=model,
     train_dataset=dataset,
     peft_config=peft_config,
-    dataset_text_field="text",
+    dataset_text_field="prediction",
     max_seq_length=script_args.max_seq_length,
     tokenizer=tokenizer,
     args=training_arguments,
