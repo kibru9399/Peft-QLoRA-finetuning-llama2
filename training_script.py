@@ -184,7 +184,7 @@ tokenizer.pad_token = tokenizer.eos_token
 
 dataset = load_dataset(script_args.dataset_name, split="train")
 dataset = dataset.filter(lambda example: (len(tokenizer(example['text']).input_ids)\
-                                           + len(tokenizer(example['title']).input_ids)) <= 3800)
+                                           + len(tokenizer(example['summary']).input_ids)) <= 4000)
 dataset = dataset.map(merge_columns)
 
 trainer = SFTTrainer(
