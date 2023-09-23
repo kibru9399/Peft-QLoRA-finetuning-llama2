@@ -179,7 +179,12 @@ def merge_columns(example):
 model, peft_config, tokenizer = create_model(script_args)
 model.config.use_cache = False
 
+tokenizer = AutoTokenizer.from_pretrained(script_args.model_name, trust_remote_code=True)
+tokenizer.pad_token = tokenizer.eos_token
+
 dataset = load_dataset(script_args.dataset_name, split="train")
+dataset = dataset.filter(lambda example: (len(tokenizer(example['text']).input_ids)\
+                                           + len(tokenizer(example['title']).input_ids)) <= 3800)
 dataset = dataset.map(merge_columns)
 
 trainer = SFTTrainer(
