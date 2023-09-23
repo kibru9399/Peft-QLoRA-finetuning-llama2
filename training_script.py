@@ -173,7 +173,7 @@ training_arguments = TrainingArguments(
     lr_scheduler_type=script_args.lr_scheduler_type,
 )
 def merge_columns(example):
-  example['prediction'] = 'summarize the following text:\n' + example['text'] + '\nsummary->: \n' + example['title']
+  example['prediction'] = 'summarize the following text:\n' + example['text'] + '\nsummary->: \n' + example['summary']
   return example
 
 model, peft_config, tokenizer = create_model(script_args)
