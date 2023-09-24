@@ -34,7 +34,7 @@ class ScriptArguments:
     model_name: Optional[str] = field(
         default="'TinyPixel/Llama-2-7B-bf16-sharded'",
         metadata={
-            "help": "The model that you want to train from the Hugging Face hub. E.g. gpt2, gpt2-xl, bert, etc."
+            "help": "The models that you want to train from the Hugging Face hub. E.g. gpt2, gpt2-xl, bert, etc."
         }
     )
     dataset_name: Optional[str] = field(
