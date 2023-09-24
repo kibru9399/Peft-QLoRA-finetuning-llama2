@@ -173,7 +173,9 @@ training_arguments = TrainingArguments(
     lr_scheduler_type=script_args.lr_scheduler_type,
 )
 def merge_columns(example):
-  example['prediction'] = 'summarize the following text:\n' + example['text'][:3800] + '\nsummary->: \n' + example['title']
+  example['prediction'] =\
+      'summarize the following text:\n' + example['text'][:3800] + '\nsummary->: \n' + example['summary'][:len(example['summary'])//2]
+
   return example
 
 model, peft_config, tokenizer = create_model(script_args)
@@ -184,7 +186,7 @@ tokenizer.pad_token = tokenizer.eos_token
 
 dataset = load_dataset(script_args.dataset_name, split="train")
 dataset = dataset.filter(lambda example: (len(tokenizer(example['text'][:3800]).input_ids)\
-                                           + len(tokenizer(example['title']).input_ids)) <= 2020)
+                                           + len(tokenizer(example['summary'][:(len(example['summary'])//2)]).input_ids)) <= 2020)
 dataset = dataset.map(merge_columns)
 
 trainer = SFTTrainer(
