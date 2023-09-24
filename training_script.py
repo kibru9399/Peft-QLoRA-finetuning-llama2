@@ -205,9 +205,13 @@ if script_args.merge_and_push:
     trainer.model.save_pretrained(output_dir)
 
     # Free memory for merging weights
-    del model
+    #del model
+    from peft import get_peft_model, LoraConfig
     torch.cuda.empty_cache()
-
+    lora_config = LoraConfig.from_pretrained(output_dir)
+    model = get_peft_model(model, lora_config)
+    model.push_to_hub("kibru/llama2-saturday")
+    '''
     from peft import AutoPeftModelForCausalLM
 
     model = AutoPeftModelForCausalLM.from_pretrained(output_dir, device_map="auto", torch_dtype=torch.bfloat16)
@@ -215,3 +219,4 @@ if script_args.merge_and_push:
 
     output_merged_dir = os.path.join(script_args.output_dir, "final_merged_checkpoint")
     model.save_pretrained(output_merged_dir, safe_serialization=True)
+    '''
