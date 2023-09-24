@@ -30,7 +30,7 @@ class ScriptArguments:
     lora_alpha: Optional[int] = field(default=16)
     lora_dropout: Optional[float] = field(default=0.1)
     lora_r: Optional[int] = field(default=64)
-    max_seq_length: Optional[int] = field(default=4096)
+    max_seq_length: Optional[int] = field(default=1024)
     model_name: Optional[str] = field(
         default="'TinyPixel/Llama-2-7B-bf16-sharded'",
         metadata={
@@ -147,7 +147,7 @@ def create_model(args):
 old_init = transformers.models.llama.modeling_llama.LlamaRotaryEmbedding.__init__
 def ntk_scaled_init(self, dim, max_position_embeddings=2048, base=10000, device=None):
 
-    max_position_embeddings = 4096
+    max_position_embeddings = 1020
     a = 8 #Alpha value
     base = base * a ** (dim / (dim-2)) #Base change formula
 
@@ -173,7 +173,7 @@ training_arguments = TrainingArguments(
     lr_scheduler_type=script_args.lr_scheduler_type,
 )
 def merge_columns(example):
-  example['prediction'] = 'summarize the following text:\n' + example['text'] + '\nsummary->: \n' + example['summary']
+  example['prediction'] = 'summarize the following text:\n' + example['summary'] + '\nsummary->: \n' + example['title']
   return example
 
 model, peft_config, tokenizer = create_model(script_args)
@@ -183,8 +183,8 @@ tokenizer = AutoTokenizer.from_pretrained(script_args.model_name, trust_remote_c
 tokenizer.pad_token = tokenizer.eos_token
 
 dataset = load_dataset(script_args.dataset_name, split="train")
-dataset = dataset.filter(lambda example: (len(tokenizer(example['text']).input_ids)\
-                                           + len(tokenizer(example['summary']).input_ids)) <= 4000)
+dataset = dataset.filter(lambda example: (len(tokenizer(example['summary']).input_ids)\
+                                           + len(tokenizer(example['title']).input_ids)) <= 1020)
 dataset = dataset.map(merge_columns)
 
 trainer = SFTTrainer(
