@@ -29,7 +29,7 @@ class ScriptArguments:
     weight_decay: Optional[int] = field(default=0.001)
     lora_alpha: Optional[int] = field(default=16)
     lora_dropout: Optional[float] = field(default=0.1)
-    lora_r: Optional[int] = field(default=32)
+    lora_r: Optional[int] = field(default=64)
     max_seq_length: Optional[int] = field(default=2048)
     model_name: Optional[str] = field(
         default="'TinyPixel/Llama-2-7B-bf16-sharded'",
