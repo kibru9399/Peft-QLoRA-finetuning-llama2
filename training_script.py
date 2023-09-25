@@ -188,7 +188,7 @@ dataset = load_dataset(script_args.dataset_name, split="train")
 #dataset = dataset.filter(lambda example: (len(tokenizer(example['text'][:3800]).input_ids)\
 #                                          + len(tokenizer(example['summary'][:(len(example['summary'])//2)]).input_ids)) <= 2020)
 dataset = dataset.filter(lambda example: (len(tokenizer(example['summary']).input_ids)\
-                                          + len(tokenizer(example['title']))).input_ids <= 500)
+                                          + len(tokenizer(example['title']).input_ids)) <= 500)
 
 dataset = dataset.map(merge_columns)
 
