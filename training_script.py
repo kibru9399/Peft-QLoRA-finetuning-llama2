@@ -86,7 +86,7 @@ class ScriptArguments:
         default="constant",
         metadata={"help": "Learning rate schedule. Constant a bit better than cosine, and has advantage for analysis"},
     )
-    max_steps: int = field(default=10000, metadata={"help": "How many optimizer update steps to take"})
+    max_steps: int = field(default=100, metadata={"help": "How many optimizer update steps to take"})
     warmup_ratio: float = field(default=0.03, metadata={"help": "Fraction of steps to do a warmup for"})
     group_by_length: bool = field(
         default=True,
@@ -153,7 +153,7 @@ def ntk_scaled_init(self, dim, max_position_embeddings=2048, base=10000, device=
 
     old_init(self, dim, max_position_embeddings, base, device)
 
-#transformers.models.llama.modeling_llama.LlamaRotaryEmbedding.__init__ = ntk_scaled_init
+transformers.models.llama.modeling_llama.LlamaRotaryEmbedding.__init__ = ntk_scaled_init
 
 
 training_arguments = TrainingArguments(
@@ -174,7 +174,7 @@ training_arguments = TrainingArguments(
 )
 def merge_columns(example):
   example['prediction'] =\
-      'summarize the following text:\n' + example['summary'] + '\n summary->: \n' + example['title'] #[:len(example['summary'])//2]
+      'summarize the following text:\n' + example['text'] + '\n summary->: \n' + example['title'] #[:len(example['summary'])//2]
 
   return example
 
@@ -187,8 +187,8 @@ tokenizer.pad_token = tokenizer.eos_token
 dataset = load_dataset(script_args.dataset_name, split="train")
 #dataset = dataset.filter(lambda example: (len(tokenizer(example['text'][:3800]).input_ids)\
 #                                          + len(tokenizer(example['summary'][:(len(example['summary'])//2)]).input_ids)) <= 2020)
-dataset = dataset.filter(lambda example: (len(tokenizer(example['summary']).input_ids)\
-                                          + len(tokenizer(example['title']).input_ids)) <= 500)
+#dataset = dataset.filter(lambda example: (len(tokenizer(example['summary']).input_ids)\
+#                                         + len(tokenizer(example['title']).input_ids)) <= 500)
 
 dataset = dataset.map(merge_columns)
 
@@ -210,8 +210,8 @@ if script_args.merge_and_push:
     trainer.model.save_pretrained(output_dir)
 
     # Free memory for merging weights
-    #del model
-    from peft import get_peft_model, LoraConfig
+    del model
+    '''
     torch.cuda.empty_cache()
     lora_config = LoraConfig.from_pretrained(output_dir)
     model = get_peft_model(model, lora_config)
@@ -225,4 +225,4 @@ if script_args.merge_and_push:
 
     output_merged_dir = os.path.join(script_args.output_dir, "final_merged_checkpoint")
     model.save_pretrained(output_merged_dir, safe_serialization=True)
-    '''
+    
