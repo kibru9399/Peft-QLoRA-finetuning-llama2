@@ -24,13 +24,13 @@ class ScriptArguments:
     per_device_train_batch_size: Optional[int] = field(default=4)
     per_device_eval_batch_size: Optional[int] = field(default=1)
     gradient_accumulation_steps: Optional[int] = field(default=4)
-    learning_rate: Optional[float] = field(default=2e-4)
+    learning_rate: Optional[float] = field(default=1e-5)
     max_grad_norm: Optional[float] = field(default=0.3)
     weight_decay: Optional[int] = field(default=0.001)
     lora_alpha: Optional[int] = field(default=16)
     lora_dropout: Optional[float] = field(default=0.1)
-    lora_r: Optional[int] = field(default=64)
-    max_seq_length: Optional[int] = field(default=1024)
+    lora_r: Optional[int] = field(default=32)
+    max_seq_length: Optional[int] = field(default=2048)
     model_name: Optional[str] = field(
         default="'TinyPixel/Llama-2-7B-bf16-sharded'",
         metadata={
@@ -39,7 +39,7 @@ class ScriptArguments:
     )
     dataset_name: Optional[str] = field(
         default="billsum",
-        metadata={"help": "The preference datset to use."},
+        metadata={"help": "The preference dataset to use."},
     )
     packing: Optional[bool] = field(
         default=False,
