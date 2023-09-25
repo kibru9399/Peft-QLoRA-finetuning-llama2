@@ -30,7 +30,7 @@ class ScriptArguments:
     lora_alpha: Optional[int] = field(default=16)
     lora_dropout: Optional[float] = field(default=0.1)
     lora_r: Optional[int] = field(default=64)
-    max_seq_length: Optional[int] = field(default=2048)
+    max_seq_length: Optional[int] = field(default=512)
     model_name: Optional[str] = field(
         default="'TinyPixel/Llama-2-7B-bf16-sharded'",
         metadata={
@@ -153,7 +153,7 @@ def ntk_scaled_init(self, dim, max_position_embeddings=2048, base=10000, device=
 
     old_init(self, dim, max_position_embeddings, base, device)
 
-transformers.models.llama.modeling_llama.LlamaRotaryEmbedding.__init__ = ntk_scaled_init
+#transformers.models.llama.modeling_llama.LlamaRotaryEmbedding.__init__ = ntk_scaled_init
 
 
 training_arguments = TrainingArguments(
@@ -187,6 +187,9 @@ tokenizer.pad_token = tokenizer.eos_token
 dataset = load_dataset(script_args.dataset_name, split="train")
 #dataset = dataset.filter(lambda example: (len(tokenizer(example['text'][:3800]).input_ids)\
 #                                          + len(tokenizer(example['summary'][:(len(example['summary'])//2)]).input_ids)) <= 2020)
+dataset = dataset.filter(lambda example: (len(tokenizer(example['summary']).input_ids)\
+                                          + len(tokenizer(example['title']))).input_ids <= 500)
+
 dataset = dataset.map(merge_columns)
 
 trainer = SFTTrainer(
