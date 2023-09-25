@@ -174,7 +174,7 @@ training_arguments = TrainingArguments(
 )
 def merge_columns(example):
   example['prediction'] =\
-      'summarize the following text:\n' + example['text'][:3800] + '\nsummary->: \n' + example['summary'][:len(example['summary'])//2]
+      'summarize the following text:\n' + example['summary'] + '\n summary->: \n' + example['title'] #[:len(example['summary'])//2]
 
   return example
 
@@ -185,8 +185,8 @@ tokenizer = AutoTokenizer.from_pretrained(script_args.model_name, trust_remote_c
 tokenizer.pad_token = tokenizer.eos_token
 
 dataset = load_dataset(script_args.dataset_name, split="train")
-dataset = dataset.filter(lambda example: (len(tokenizer(example['text'][:3800]).input_ids)\
-                                           + len(tokenizer(example['summary'][:(len(example['summary'])//2)]).input_ids)) <= 2020)
+#dataset = dataset.filter(lambda example: (len(tokenizer(example['text'][:3800]).input_ids)\
+#                                          + len(tokenizer(example['summary'][:(len(example['summary'])//2)]).input_ids)) <= 2020)
 dataset = dataset.map(merge_columns)
 
 trainer = SFTTrainer(
